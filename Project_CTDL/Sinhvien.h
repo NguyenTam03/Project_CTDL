@@ -32,7 +32,7 @@ bool Empty(PTR_SV First) {
 	return First == NULL;
 }
 
-void Insert_Head(PTR_SV First, SINHVIEN sv) {
+void Insert_Head(PTR_SV &First, SINHVIEN sv) {
 	PTR_SV temp = new nodeSV;
 	temp->info = sv;
 	temp->next = First;
@@ -40,18 +40,11 @@ void Insert_Head(PTR_SV First, SINHVIEN sv) {
 }
 
 int find_Pos(PTR_SV First, SINHVIEN sv) {
-	int pos = 1;
+	int pos = 0;
 	PTR_SV p = First;
-	while(p != NULL && p->info.MALOP <= sv.MALOP) {
-		if(p->info.MALOP == sv.MALOP) {
-			while(p != NULL && p->info.TEN <= sv.TEN) {
-				if(p->info.TEN == sv.TEN) {
-					while(p != NULL && p->info.HO < sv.HO) {
-						pos++;
-						p = p->next;
-					}
-					return pos;
-				}
+	while(p != NULL && p->info.TEN <= sv.TEN) {
+		if(p->info.TEN == sv.TEN) {
+			while(p != NULL && p->info.HO < sv.HO) {
 				pos++;
 				p = p->next;
 			}
@@ -65,11 +58,11 @@ int find_Pos(PTR_SV First, SINHVIEN sv) {
 
 void add_SV(PTR_SV &First, SINHVIEN sv) {
 	int add_pos = find_Pos(First, sv);
-	if(First == NULL || add_pos == 1) {
+	if(First == NULL || add_pos == 0) {
 		Insert_Head(First, sv);
 		return;
 	}
-	int pos = 1;
+	int pos = 0;
 	PTR_SV p = First;
 	for(; p->next != NULL && pos < add_pos - 1; pos++, p = p->next);
 	PTR_SV q = new nodeSV;
@@ -132,7 +125,6 @@ void free_DSSV(PTR_SV &First) {
 		delete temp;
 	}
 }
-
 
 
 
