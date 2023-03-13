@@ -1,15 +1,16 @@
 #pragma once
 #include "Const.h"
-#include "View.h"
+#include "Sinhvien.h"
 
 struct LopSV{
 	string MALOP;
 	PTR_SV First_dssv;
+	int soluongsv = 0;
 };
 
 struct DS_LopSV{
 	int n = 0;
-	LopSV *lopsv[MAX_LOPSV];
+	LopSV *lopsv;
 };
 
 bool isNull_LopSV(DS_LopSV dslsv) {
@@ -25,17 +26,14 @@ int add_LSV(DS_LopSV &dslsv, string malop) {
 	if(isFull_LopSV(dslsv)) return -1;
 	int pos = 0;
 	for(; pos < dslsv.n; pos++) {
-		if(dslsv.lopsv[pos]->MALOP > malop) break;
-		if(dslsv.lopsv[pos]->MALOP == malop) return 2; // malop trung
+		if(dslsv.lopsv[pos].MALOP > malop) break;
+		if(dslsv.lopsv[pos].MALOP == malop) return 2; // malop trung
 	}
-	LopSV* newLopSV = new LopSV;
-	newLopSV->MALOP = malop;
-	newLopSV->First_dssv = NULL;
 	for(int i = dslsv.n; i > pos; i--) {
 		dslsv.lopsv[i] = dslsv.lopsv[i - 1];
 	}
-	
-	dslsv.lopsv[pos] = newLopSV;;
+	dslsv.lopsv[pos].MALOP = malop;
+	dslsv.lopsv[pos].First_dssv = NULL;
 	dslsv.n++;
 	return 1;
 }
@@ -44,14 +42,14 @@ int add_LSV(DS_LopSV &dslsv, string malop) {
 int search_LSV(DS_LopSV dslsv, string malop) {
 	if(isNull_LopSV(dslsv)) return -1;
 	for(int i = 0; i < dslsv.n; i++) {
-		if(dslsv.lopsv[i]->MALOP == malop) return i;
+		if(dslsv.lopsv[i].MALOP == malop) return i;
 	}
 	return -1;
 }
 
 int searchSV_LopSV(DS_LopSV dslsv, SINHVIEN SV) {
 	for(int i = 0; i < dslsv.n; i++) {
-		if(search_SV(dslsv.lopsv[i]->First_dssv, SV.MASV) != -1) {
+		if(search_SV(dslsv.lopsv[i].First_dssv, SV.MASV) != -1) {
 			return i;
 		}
 	}
@@ -81,9 +79,9 @@ void readFile_DSSV(DS_LopSV &dslsv) {
 	filein.open("data\\DSSV.txt", ios::in);
 	if(filein.is_open()) {
 		string s;
+		int temp;
 		while(!filein.eof()) {
 			SINHVIEN info;
-			
 			getline(filein, s, ',');
 			info.MASV = s;
 			getline(filein, s, ',');
@@ -91,15 +89,18 @@ void readFile_DSSV(DS_LopSV &dslsv) {
 			getline(filein, s, ',');
 			info.TEN = s;
 			getline(filein, s, ',');
+			info.PHAI = s;
+			getline(filein, s, ',');
 			info.SODT = s;
 			getline(filein, s, ',');
 			info.MALOP = s;
-			
-			PTR_SV SV = new nodeSV;
-			SV->info = info;
-			int pos_lop = search_LSV(dslsv, SV->info.MALOP);
+			filein >> temp;
+			info.namnhaphoc = temp;
+			int pos_lop = search_LSV(dslsv, info.MALOP);
 			if(pos_lop != -1) {
-				add_SV(dslsv.lopsv[pos_lop]->First_dssv, SV->info);
+				add_SV(dslsv.lopsv[pos_lop].First_dssv, info);
+				
+				dslsv.lopsv[pos_lop].soluongsv++;
 			}
 		}
 	}else {
@@ -108,8 +109,9 @@ void readFile_DSSV(DS_LopSV &dslsv) {
 	filein.close();
 }
 
-void writeData_LopSV(ofstream &fileout, LopSV *lopsv) {
-	fileout << lopsv->MALOP;
+
+void writeData_LopSV(ofstream &fileout, LopSV lopsv) {
+	fileout << lopsv.MALOP;
 	fileout << '\n';
 }
 
@@ -123,5 +125,4 @@ void writeDataDS_LopSV(DS_LopSV dslsv) {
 	}
 	fileout.close();
 }
-
 
